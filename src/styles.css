@@ -1,0 +1,39 @@
+html, body
+{
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+}
+
+nav
+{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    border-bottom: 2px solid black;
+    box-shadow: 2px 2px 2px black;
+}
+#content
+{
+    display: grid;
+    grid-template-columns: 1fr 6fr;
+    flex-grow: 1;
+}
+
+.sidebar
+{
+    padding-top: 1.5em;
+    padding-left: 1.5em;
+    border-right: 1px grey solid;
+    flex-grow: 1;
+}
+
+ul
+{
+    cursor: pointer;
+    padding: 0;
+    list-style: none;
+}

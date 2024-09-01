@@ -1,0 +1,37 @@
+import TodosFactory from "./Todos-factory";
+let ProjectFactory = (function (){
+    // every project has its own array of todos
+    const ProjectBuild = () =>
+    {
+        this.todos = [];
+        this.completed_todos = [];
+    }
+    // find the 
+    const addToList = (todos, todo) =>
+    {
+        let index = todos.findIndex(x => x.priority < todo.priority);
+        if (index == -1)
+        {
+            todos.unshift(todo);
+        } else
+        {
+            todos.splice(index + 1, 0, todo);
+        }
+    }
+
+    const addTodo = (todos, title, description, dueDate, priority) =>
+    {
+        let todo = TodosFactory.CreateTodo(title, description, dueDate, priority);
+        todos.addToList(todos, todo);
+    }
+
+    const deleteTodo = (todos, todo) =>
+    {
+        let index = todos.findIndex(x => x.title == todo.title && x.priority == todo.priority);
+        todos.splice(index, 1);
+    }
+
+    return {ProjectBuild, addTodo, deleteTodo};
+})();
+
+export default ProjectFactory;
