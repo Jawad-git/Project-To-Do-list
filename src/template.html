@@ -10,30 +10,34 @@
     <h1 class="heading">Welcome to my To-do App, the best Task application out there!</h1>
 </nav>
 <div id="content">
+    <div id="modal">
+        <div class="modal-content">
+            <span class="closeBtn">wfefwe&times;</span>
+            <h2>Task</h2>
+            <form id="modalForm">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required placeholder="title..">
+                <label for="description">Description:</label>
+                <input type="text" id="description" name="description" required>
+                <label for="dueDate">Due date:</label>
+                <input type="text" id="dueDate" name="dueDate" required>
+                <label for="priority">Priority:</label>
+                <input type="text" id="priority" name="priority" required>
+                <button type="submit" id="addTaskSubmit">Add Task</button>
+            </form>
+        </div>
+    </div>
     <div class="sidebar">
         <button id="addTask"> Add new task</button>
         <ul id="projects">
-            <li>All</li>
-            </ul>
+            <li id="All">All</li>
+        </ul>
+        <form id="projectForm">
+            <input type="text" id="newProjectName">
+            <button type="submit">Add</button>
+        </form>
         </div>
-    <div class="container">
-        <div id="modal">
-            <div class="modal-content">
-                <span class="closeBtn">wfefwe&times;</span>
-                <h2>Task</h2>
-                <form id="modalForm">
-                    <label for="title">Title:</label>
-                    <input type="text" id="title" name="title" required placeholder="title..">
-                    <label for="description">Description:</label>
-                    <input type="text" id="description" name="description" required>
-                    <label for="dueDate">Due date:</label>
-                    <input type="text" id="dueDate" name="dueDate" required>
-                    <label for="priority">Priority:</label>
-                    <input type="text" id="priority" name="priority" required>
-                    <button type="submit" id="addTaskSubmit">Add Task</button>
-                </form>
-            </div>
-        </div>
+    <div id ="container">
     </div>
 </div>
     

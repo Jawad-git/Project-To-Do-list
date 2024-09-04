@@ -33,7 +33,6 @@ nav
 
 ul
 {
-    cursor: pointer;
     padding: 0;
     list-style: none;
 }
@@ -60,5 +59,11 @@ ul
     max-width: 400px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     border-radius: 8px;
+}
+
+.todo
+{
+    margin: 2em;
+    border: black 1px solid;
 }
 

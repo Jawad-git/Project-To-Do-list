@@ -27,7 +27,7 @@ let ProjectFactory = (function (){
     const addTodo = (todos, title, description, dueDate, priority) =>
     {
         let todo = new CreateTodo(title, description, dueDate, priority);
-        todos.addToList(todos, todo);
+        addToList(todos, todo);
     }
     // Delete a task from the array if found.
     const deleteTodo = (todos, todo) =>
