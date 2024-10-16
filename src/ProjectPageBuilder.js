@@ -11,20 +11,29 @@ let ProjectPageBuilder = (function(){
     let deleteTodo = ProjectFactory.deleteTodo;
     let addTodo = ProjectFactory.addTodo;
     let ProjectBuild = ProjectFactory.ProjectBuild;
-
     // Create a function to display the todos.
     let DisplayTodos = (todos, completed_todos) =>
     {
         document.getElementById("container").innerHTML = "";
         let listdiv = DivBuilder("class", "lists");
         let ul = document.createElement("ul");
+        let ulCompleted = document.createElement("ul");
         todos.forEach(todo => 
         {
             // create a function that returns the task li to reduce clutter
             let li = TodoDisplayHelper(todo, todos, completed_todos);
             ul.appendChild(li);
         });
+            
+        completed_todos.forEach(todo => 
+        {
+            // create a function that returns the task li to reduce clutter
+            let li = CompletedDisplayHelper(todo, todos, completed_todos);
+            ul.appendChild(li);
+        });
+        
         listdiv.appendChild(ul);
+        listdiv.appendChild(ulCompleted);
         document.getElementById("container").append(listdiv);
         //listdiv;
     };
@@ -34,8 +43,26 @@ let ProjectPageBuilder = (function(){
         // Create a function that handles checking out the task.
         var HandleCheckTask = () =>
         {
-            addTodo(completed_todos, todo.description, todo.title, todo.dueDate, todo.priority);
+            addTodo(completed_todos, todo.title, todo.dueDate, todo.description, todo.priority);
             deleteTodo(todos, todo);
+            // ---------------------
+            if (ProjectFactory.currentProject.name != "All")
+                {
+                    deleteTodo(ProjectFactory.projects.find(x => x.name == "All").todos, todo); // ------------- do for check & Edit too
+                    addTodo(ProjectFactory.projects.find(x => x.name == "All").completed_todos, todo.title, todo.dueDate, todo.description, todo.priority);    
+                }
+                else
+                {
+                    ProjectFactory.projects.forEach(project => {
+                    let obj = project.todos.find(x => x.title == todo.title && x.description == todo.description);
+                        if (obj !== undefined)
+                        {
+                            addTodo(project.completed_todos, todo.title, todo.dueDate, todo.description, todo.priority);    
+                            deleteTodo(project.todos, obj); // ------------- do for check & Edit too
+                        }
+                    })
+                }
+            // --------------------- scope here for similar to editing!
             document.getElementById("container").innerHTML = "";
             DisplayTodos(todos, completed_todos);
         };
@@ -67,8 +94,21 @@ let ProjectPageBuilder = (function(){
         var HandleDeleteTask = (e) =>
         {
             deleteTodo(todos, todo);
-            let taskToDelete = e.target.closest("li");
-            taskToDelete.remove();
+            if (ProjectFactory.currentProject.name != "All")
+            {
+                deleteTodo(ProjectFactory.projects.find(x => x.name == "All").todos, todo); // ------------- do for check & Edit too
+            }
+            else
+            {
+                ProjectFactory.projects.forEach(project => {
+                    let obj = project.todos.find(x => x.title == todo.title && x.description == todo.description);
+                    if (obj !== undefined)
+                    {
+                        deleteTodo(project.todos, obj);
+                    }
+                })
+            }
+            DisplayTodos(todos, completed_todos);
         };
         let nav = DivBuilder("class", "displayNav");
         let taskTitle = TextBuilder("h1", todo.title, "taskTitle");
@@ -79,6 +119,7 @@ let ProjectPageBuilder = (function(){
         nav.append(taskTitle, taskDueDate, editButton, deleteButton);
         return nav;
     }
+
     // Create function that creates a "shadow" parallel Task near the one you want to edit
     // And it will be used to edit the real task
     let EditTodoDisplay = (todo, todos, completed_todos) =>
@@ -113,6 +154,24 @@ let ProjectPageBuilder = (function(){
             e.preventDefault();
             deleteTodo(todos, todo);
             addTodo(todos, titleInput.value, dueDateInput.value, descriptionInput.value, priorityInput.value);
+            // ---------------
+            if (ProjectFactory.currentProject.name != "All")
+            {
+                deleteTodo(ProjectFactory.projects.find(x => x.name == "All").todos, todo);
+                addTodo(ProjectFactory.projects.find(x => x.name == "All").todos, titleInput.value, dueDateInput.value, descriptionInput.value, priorityInput.value);
+            }
+            else
+            {
+                ProjectFactory.projects.forEach(project => {
+                    let obj = project.todos.find(x => x.title == todo.title && x.description == todo.description);
+                    if (obj !== undefined)
+                    {
+                        deleteTodo(project.todos, todo);
+                        addTodo(project.todos, titleInput.value, dueDateInput.value, descriptionInput.value, priorityInput.value);
+                    }
+                })
+            }
+            // -------------- fix in this scope            
             DisplayTodos(todos, completed_todos);
         };
         
@@ -120,14 +179,77 @@ let ProjectPageBuilder = (function(){
         form.addEventListener("submit", handleSubmitEdit);
         return task;
     }
+    
+    let CompletedDisplayHelper = (todo, todos, completed_todos) =>
+        {
+            // Create a function that handles checking out the task.
+            var HandleCheckTask = () =>
+            {
+                addTodo(todos, todo.title, todo.dueDate, todo.description, todo.priority);
+                deleteTodo(completed_todos, todo);
+                // ----------------------
+                if (ProjectFactory.currentProject.name != "All")
+                    {
+                        addTodo(ProjectFactory.projects.find(x => x.name == "All").todos, todo.title, todo.dueDate, todo.description, todo.priority);
+                        deleteTodo(ProjectFactory.projects.find(x => x.name == "All").completed_todos, todo);
+                    }
+                    else
+                    {
+                        ProjectFactory.projects.forEach(project => {
+                            let obj = project.todos.find(x => x.title == todo.title && x.description == todo.description);
+                            if (obj !== undefined)
+                            {
+                                addTodo(project.todos, todo.title, todo.dueDate, todo.description, todo.priority);
+                                deleteTodo(project.completed_todos, todo);
+                            }
+                        })
+                    }
+                // --------------------- scope here for like submitting an edit
+                document.getElementById("container").innerHTML = "";
+                DisplayTodos(todos, completed_todos);
+            };
+            var HandleDeleteTask = (e) =>
+                {
+                    deleteTodo(completed_todos, todo);
+                    if (ProjectFactory.currentProject.name != "All")
+                    {
+                        deleteTodo(ProjectFactory.projects.find(x => x.name == "All").completed_todos, todo); // find before or after?
+                    }
+                    else
+                    {
+                        ProjectFactory.projects.forEach(project => {
+                            let obj = project.completed_todos.find(x => x.title == todo.title && x.description == todo.description);
+                            if (obj !== undefined)
+                            {
+                                deleteTodo(obj.completed_todos, todo);
+                            }
+                        })
+                    }
+                    DisplayTodos(todos, completed_todos);
+                };
+            let li = document.createElement("li");
+            let task = DivBuilder("class", "todo");
+            // because the nav houses the title, due date, the edit and delete buttons, it requires
+            // a helper function.
+            let nav = DivBuilder("class", "displayNav");
+            let taskTitle = TextBuilder("h1", todo.title, "taskTitle");
+            let taskDueDate = TextBuilder("h4", todo.dueDate, "taskTDueDate");
+            let deleteButton = ButtonBuilder("Delete Task", "deleteButton", HandleDeleteTask);
+            let taskDescription = TextBuilder("p", todo.description, "taskDescription");
+            let taskFooter = DivBuilder("taskFooter");
+            let taskPriority = TextBuilder("h6", todo.priority, "taskPriority");
+            let unCheckButton = ButtonBuilder("Uncheck Task", "checkButton", HandleCheckTask);
+            nav.append(taskTitle, taskDueDate, deleteButton);
+            taskFooter.append(taskPriority, unCheckButton);
+            task.append(nav, taskDescription, taskFooter);
+            li.appendChild(task);
+            return li;
+        };
 
-    let checkFactory = (e) =>
-    {
-        return e.target.innerText;
-    }
+
     // Create the modal for creating a new Task, the modal should show up after 
     // clicking the add task button in the sidebar
-    let enterNewTask = (projects, project) =>
+    let enterNewTask = () =>
     {
             // Assign the openModal function directly to the click event listener
         
@@ -157,19 +279,20 @@ let ProjectPageBuilder = (function(){
 
             function handleSubmit(e) {
                 e.preventDefault();
+                console.log(ProjectFactory.currentProject);
                 let modal = document.getElementById("modal");
                 modal.style.display = "none";
                 let title = document.getElementById("title").value;
                 let description = document.getElementById("description").value;
                 let dueDate = document.getElementById("dueDate").value;
                 let priority = document.getElementById("priority").value;
-                addTodo(project.todos, title, description, dueDate, priority);
-                if (project.name != "All")
+                addTodo(ProjectFactory.currentProject.todos, title, description, dueDate, priority);
+                if (ProjectFactory.currentProject.name != "All")
                 {
-                    addTodo(projects.find(x => x.name == "All").todos, title, description, dueDate, priority);
+                    addTodo(ProjectFactory.projects.find(x => x.name == "All").todos, title, dueDate, description, priority);
                 }
                 document.getElementById("container").innerHTML = "";
-                DisplayTodos(project.todos, project.completed_todos);
+                DisplayTodos(ProjectFactory.currentProject.todos, ProjectFactory.currentProject.completed_todos);
             }
 
             // Prevent adding multiple event listeners for 'submit' on the modalForm
@@ -178,25 +301,26 @@ let ProjectPageBuilder = (function(){
             addTaskForm.addEventListener("submit", handleSubmit);
     }
     
-    let enterNewFactory = (projects) =>
+    let EnterNewFactory = () =>
     {
-        function onLiClick(currentProject)
+        function onLiClick(newProject)
             {
-                ProjectPageBuilder.DisplayTodos(currentProject.todos, currentProject.completed_todos);
-                enterNewTask(currentProject.todos, currentProject.completed_todos); // add to event listener
+                ProjectFactory.currentProject = newProject;
+                console.log(ProjectFactory.currentProject);
+                ProjectPageBuilder.DisplayTodos(ProjectFactory.currentProject.todos, ProjectFactory.currentProject.completed_todos);
             };
         // separate the creation of an li with an event listener into its own function
         function handleSubmit(e) {
             e.preventDefault();
             let projectName = document.getElementById("newProjectName").value;
             let newProject = new ProjectBuild(projectName);
-            projects.push(newProject);
-            let currentProject = newProject;
-            ProjectPageBuilder.DisplayTodos(currentProject.todos, currentProject.completed_todos)
+            ProjectFactory.currentProject = newProject;
+            ProjectFactory.projects.push(newProject);
             let projectli = commonBuilders.TextBuilder("li", projectName, null);
-            projectli.removeEventListener("click", () => onLiClick(currentProject));
-            projectli.addEventListener("click", () => onLiClick(currentProject));
+            projectli.removeEventListener("click", () => onLiClick(newProject));
+            projectli.addEventListener("click", () => onLiClick(newProject));
             document.getElementById("projects").append(projectli);
+            ProjectPageBuilder.DisplayTodos(ProjectFactory.currentProject.todos, ProjectFactory.currentProject.completed_todos);
         }
         let projectForm = document.getElementById("projectForm");
         projectForm.removeEventListener("submit", handleSubmit);
@@ -204,7 +328,7 @@ let ProjectPageBuilder = (function(){
     }
 
     //let NewProjectDisplay()
-    return {DisplayTodos, enterNewTask, enterNewFactory, enterNewTask};
+    return {DisplayTodos, enterNewTask, EnterNewFactory, enterNewTask};
 })();
 
 export default ProjectPageBuilder;
