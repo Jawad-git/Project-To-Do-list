@@ -1,7 +1,7 @@
 import commonBuilders from './CommonBuilders.js';
 import TodosFactory from './Todos-factory.js';
 import ProjectFactory from './ProjectFactory.js';
-
+// maybe remove the project and use currentproject to display dom
 let ProjectPageBuilder = (function(){
 
     let DivBuilder = commonBuilders.DivBuilder;
@@ -12,7 +12,7 @@ let ProjectPageBuilder = (function(){
     let addTodo = ProjectFactory.addTodo;
     let ProjectBuild = ProjectFactory.ProjectBuild;
     // Create a function to display the todos.
-    let DisplayTodos = (todos, completed_todos) =>
+    let DisplayTodos = () =>
     {
         document.getElementById("container").innerHTML = "";
         let listdiv = DivBuilder("class", "lists");
@@ -21,15 +21,15 @@ let ProjectPageBuilder = (function(){
         todos.forEach(todo => 
         {
             // create a function that returns the task li to reduce clutter
-            let li = TodoDisplayHelper(todo, todos, completed_todos);
+            let li = TodoDisplayHelper(todo);
             ul.appendChild(li);
         });
             
         completed_todos.forEach(todo => 
         {
             // create a function that returns the task li to reduce clutter
-            let li = CompletedDisplayHelper(todo, todos, completed_todos);
-            ul.appendChild(li);
+            let li = CompletedDisplayHelper(todo);
+            ulCompleted.appendChild(li);
         });
         
         listdiv.appendChild(ul);
@@ -37,40 +37,23 @@ let ProjectPageBuilder = (function(){
         document.getElementById("container").append(listdiv);
         //listdiv;
     };
+
     // create the function that returns the li which houses the Task visual representation
-    let TodoDisplayHelper = (todo, todos, completed_todos) =>
+    let TodoDisplayHelper = (todo) =>
     {
         // Create a function that handles checking out the task.
         var HandleCheckTask = () =>
         {
-            addTodo(completed_todos, todo.title, todo.dueDate, todo.description, todo.priority);
-            deleteTodo(todos, todo);
-            // ---------------------
-            if (ProjectFactory.currentProject.name != "All")
-                {
-                    deleteTodo(ProjectFactory.projects.find(x => x.name == "All").todos, todo); // ------------- do for check & Edit too
-                    addTodo(ProjectFactory.projects.find(x => x.name == "All").completed_todos, todo.title, todo.dueDate, todo.description, todo.priority);    
-                }
-                else
-                {
-                    ProjectFactory.projects.forEach(project => {
-                    let obj = project.todos.find(x => x.title == todo.title && x.description == todo.description);
-                        if (obj !== undefined)
-                        {
-                            addTodo(project.completed_todos, todo.title, todo.dueDate, todo.description, todo.priority);    
-                            deleteTodo(project.todos, obj); // ------------- do for check & Edit too
-                        }
-                    })
-                }
-            // --------------------- scope here for similar to editing!
+            ProjectFactory.checkToDo(todo);
             document.getElementById("container").innerHTML = "";
-            DisplayTodos(todos, completed_todos);
+            DisplayTodos(project);
         };
         let li = document.createElement("li");
         let task = DivBuilder("class", "todo");
+
         // because the nav houses the title, due date, the edit and delete buttons, it requires
         // a helper function.
-        let nav = TodoNavHelper(todo, todos, completed_todos);
+        let nav = TodoNavHelper(todo, project);
         let taskDescription = TextBuilder("p", todo.description, "taskDescription");
         let taskFooter = DivBuilder("taskFooter");
         let taskPriority = TextBuilder("h6", todo.priority, "taskPriority");
@@ -82,33 +65,19 @@ let ProjectPageBuilder = (function(){
         return li;
     };
     // Create function TodoNavHelper that helps in creating the nav of a task    
-    let TodoNavHelper = (todo, todos, completed_todos) =>
+    let TodoNavHelper = (todo, project) =>
     {
         // Create function HandleEditTask that is called when clicking on the Edit button
         var HandleEditTask =  (e) =>
         {
             let li = e.target.closest("li");
-            li.append(EditTodoDisplay(todo, todos, completed_todos));
+            li.append(EditTodoDisplay(todo, project));
         };
         // Create function HandleDeleteTask that is called when clicking on the delete button        
         var HandleDeleteTask = (e) =>
         {
-            deleteTodo(todos, todo);
-            if (ProjectFactory.currentProject.name != "All")
-            {
-                deleteTodo(ProjectFactory.projects.find(x => x.name == "All").todos, todo); // ------------- do for check & Edit too
-            }
-            else
-            {
-                ProjectFactory.projects.forEach(project => {
-                    let obj = project.todos.find(x => x.title == todo.title && x.description == todo.description);
-                    if (obj !== undefined)
-                    {
-                        deleteTodo(project.todos, obj);
-                    }
-                })
-            }
-            DisplayTodos(todos, completed_todos);
+            ProjectFactory.deleteTodo(todo);
+            DisplayTodos(project);
         };
         let nav = DivBuilder("class", "displayNav");
         let taskTitle = TextBuilder("h1", todo.title, "taskTitle");
@@ -172,7 +141,7 @@ let ProjectPageBuilder = (function(){
                 })
             }
             // -------------- fix in this scope            
-            DisplayTodos(todos, completed_todos);
+            DisplayTodos(project);
         };
         
         // On discard, remove the parallel Task
@@ -183,48 +152,15 @@ let ProjectPageBuilder = (function(){
     let CompletedDisplayHelper = (todo, todos, completed_todos) =>
         {
             // Create a function that handles checking out the task.
-            var HandleCheckTask = () =>
+            var HandleUnCheckTask = () =>
             {
-                addTodo(todos, todo.title, todo.dueDate, todo.description, todo.priority);
-                deleteTodo(completed_todos, todo);
-                // ----------------------
-                if (ProjectFactory.currentProject.name != "All")
-                    {
-                        addTodo(ProjectFactory.projects.find(x => x.name == "All").todos, todo.title, todo.dueDate, todo.description, todo.priority);
-                        deleteTodo(ProjectFactory.projects.find(x => x.name == "All").completed_todos, todo);
-                    }
-                    else
-                    {
-                        ProjectFactory.projects.forEach(project => {
-                            let obj = project.todos.find(x => x.title == todo.title && x.description == todo.description);
-                            if (obj !== undefined)
-                            {
-                                addTodo(project.todos, todo.title, todo.dueDate, todo.description, todo.priority);
-                                deleteTodo(project.completed_todos, todo);
-                            }
-                        })
-                    }
-                // --------------------- scope here for like submitting an edit
+                ProjectFactory.uncheckTodo(todo);
                 document.getElementById("container").innerHTML = "";
-                DisplayTodos(todos, completed_todos);
+                DisplayTodos(project);
             };
             var HandleDeleteTask = (e) =>
                 {
-                    deleteTodo(completed_todos, todo);
-                    if (ProjectFactory.currentProject.name != "All")
-                    {
-                        deleteTodo(ProjectFactory.projects.find(x => x.name == "All").completed_todos, todo); // find before or after?
-                    }
-                    else
-                    {
-                        ProjectFactory.projects.forEach(project => {
-                            let obj = project.completed_todos.find(x => x.title == todo.title && x.description == todo.description);
-                            if (obj !== undefined)
-                            {
-                                deleteTodo(obj.completed_todos, todo);
-                            }
-                        })
-                    }
+                    ProjectFactory.deleteTodo(todo);
                     DisplayTodos(todos, completed_todos);
                 };
             let li = document.createElement("li");
@@ -238,7 +174,7 @@ let ProjectPageBuilder = (function(){
             let taskDescription = TextBuilder("p", todo.description, "taskDescription");
             let taskFooter = DivBuilder("taskFooter");
             let taskPriority = TextBuilder("h6", todo.priority, "taskPriority");
-            let unCheckButton = ButtonBuilder("Uncheck Task", "checkButton", HandleCheckTask);
+            let unCheckButton = ButtonBuilder("Uncheck Task", "checkButton", HandleUnCheckTask);
             nav.append(taskTitle, taskDueDate, deleteButton);
             taskFooter.append(taskPriority, unCheckButton);
             task.append(nav, taskDescription, taskFooter);
@@ -292,7 +228,7 @@ let ProjectPageBuilder = (function(){
                     addTodo(ProjectFactory.projects.find(x => x.name == "All").todos, title, dueDate, description, priority);
                 }
                 document.getElementById("container").innerHTML = "";
-                DisplayTodos(ProjectFactory.currentProject.todos, ProjectFactory.currentProject.completed_todos);
+                DisplayTodos(ProjectFactory.currentProject);
             }
 
             // Prevent adding multiple event listeners for 'submit' on the modalForm

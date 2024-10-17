@@ -7,41 +7,101 @@ let ProjectFactory = (function (){
     function ProjectBuild(name)
     {
         this.name = name;
-        this.todos = [];
-        this.completed_todos = [];
+        this.todoList = [];
+        this.completedList = [];
     }
-
+    const projects = [];
     let All = new ProjectBuild("All");
     let currentProject = All;
-    const projects = [];
     projects.push(All);
+
+
     // add the task to its respective position in the arrays depending on its priority.
-    const addToList = (todos, todo) =>
+    const addToList = (todoList, todo) =>
     {
-        let index = todos.findIndex(x => x.priority < todo.priority);
+        let index = todoList.findIndex(x => x.priority < todo.priority);
         if (index == -1)
         {
-            todos.unshift(todo);
+            todoList.unshift(todo);
         } else
         {
-            todos.splice(index + 1, 0, todo);
+            todoList.splice(index + 1, 0, todo);
         }
     }
 
-    // take the input from the user, create a Todo with them, and run addToList.
-    const addTodo = (todos, title, description, dueDate, priority) =>
+    const sendTodoFromListToAnother = (listA, listB, todo) =>
     {
-        let todo = new CreateTodo(title, dueDate, description, priority);
-        addToList(todos, todo);
-    }
-    // Delete a task from the array if found.
-    const deleteTodo = (todos, todo) =>
-    {
-        let index = todos.findIndex(x => x.title == todo.title && x.priority == todo.priority);
-        todos.splice(index, 1);
+        removeFromList(listA, todo);
+        addToList(listB, todo);
     }
 
-    return {ProjectBuild, addTodo, deleteTodo, currentProject, projects, All};
+
+    const checkToDo = (todo) =>
+    {
+        todo.check();
+        let project = projects.find(x => x.name == `${todo.project}`);
+        sendTodoFromListToAnother(project.todoList, project.completedList, todo); 
+        if (todo.project != "All")
+        {
+            sendTodoFromListToAnother(All.todoList, All.completedList, todo);          
+        }         
+    }
+
+    const uncheckTodo = (todo) =>
+    {
+        todo.uncheck();
+        let project = projects.find(x => x.name == `${todo.project}`);
+        sendTodoFromListToAnother(project.completedList, project.todoList, todo);
+        if (todo.project != "All")
+        {
+            sendTodoFromListToAnother(All.completedList, All.todoList, todo);          
+        }    
+    }
+
+    // take the input from the user, create a Todo with them, and run addToList.
+    const addTodo = (title, description, dueDate, priority, project = currentProject) =>
+    {
+        let todo = new CreateTodo(title, dueDate, description, priority, project.name);
+        addToList(project.todoList, todo);
+        if (project.name != "All")
+        {
+            addToList(All.todoList, todo);           
+        }
+    }
+
+    const removeFromList = (list, todo) => {
+        let index = list.findIndex(x => x.Id == todo.Id);
+        if (index !== -1) {
+            list.splice(index, 1);
+        }
+    }
+    
+    // Delete a task from the array if found.
+    const deleteTodo = (todo) => 
+    {
+        let project = projects.find(x => x.name == `${todo.project}`);
+        if (todo.checked)
+            {
+                removeFromList(project.completedList, todo);
+            }
+            else
+            {
+                removeFromList(project.todoList, todo);
+            }
+        if (todo.project != "All")
+        {
+            if (todo.checked)
+            {
+                removeFromList(All.completedList, todo);
+            }
+            else
+            {
+                removeFromList(All.todoList, todo);
+            }
+        }
+    }
+
+    return {ProjectBuild, addTodo, deleteTodo, currentProject, projects, All, sendTodoFromListToAnother, checkToDo, uncheckTodo};
 })();
 
 export default ProjectFactory;
