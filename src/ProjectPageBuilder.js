@@ -18,14 +18,14 @@ let ProjectPageBuilder = (function(){
         let listdiv = DivBuilder("class", "lists");
         let ul = document.createElement("ul");
         let ulCompleted = document.createElement("ul");
-        todos.forEach(todo => 
+        ProjectFactory.currentProject.todoList.forEach(todo => 
         {
             // create a function that returns the task li to reduce clutter
             let li = TodoDisplayHelper(todo);
             ul.appendChild(li);
         });
             
-        completed_todos.forEach(todo => 
+        ProjectFactory.currentProject.completedList.forEach(todo => 
         {
             // create a function that returns the task li to reduce clutter
             let li = CompletedDisplayHelper(todo);
@@ -46,14 +46,14 @@ let ProjectPageBuilder = (function(){
         {
             ProjectFactory.checkToDo(todo);
             document.getElementById("container").innerHTML = "";
-            DisplayTodos(project);
+            DisplayTodos();
         };
         let li = document.createElement("li");
         let task = DivBuilder("class", "todo");
 
         // because the nav houses the title, due date, the edit and delete buttons, it requires
         // a helper function.
-        let nav = TodoNavHelper(todo, project);
+        let nav = TodoNavHelper(todo);
         let taskDescription = TextBuilder("p", todo.description, "taskDescription");
         let taskFooter = DivBuilder("taskFooter");
         let taskPriority = TextBuilder("h6", todo.priority, "taskPriority");
@@ -65,19 +65,19 @@ let ProjectPageBuilder = (function(){
         return li;
     };
     // Create function TodoNavHelper that helps in creating the nav of a task    
-    let TodoNavHelper = (todo, project) =>
+    let TodoNavHelper = (todo) =>
     {
         // Create function HandleEditTask that is called when clicking on the Edit button
         var HandleEditTask =  (e) =>
         {
             let li = e.target.closest("li");
-            li.append(EditTodoDisplay(todo, project));
+            li.append(EditTodoDisplay(todo));
         };
         // Create function HandleDeleteTask that is called when clicking on the delete button        
         var HandleDeleteTask = (e) =>
         {
             ProjectFactory.deleteTodo(todo);
-            DisplayTodos(project);
+            DisplayTodos();
         };
         let nav = DivBuilder("class", "displayNav");
         let taskTitle = TextBuilder("h1", todo.title, "taskTitle");
@@ -91,7 +91,7 @@ let ProjectPageBuilder = (function(){
 
     // Create function that creates a "shadow" parallel Task near the one you want to edit
     // And it will be used to edit the real task
-    let EditTodoDisplay = (todo, todos, completed_todos) =>
+    let EditTodoDisplay = (todo) =>
     {
         var handleDiscardEdit = () =>
         {
@@ -121,27 +121,8 @@ let ProjectPageBuilder = (function(){
         var handleSubmitEdit =  (e) => // You make want to fix the submit, event handler on button or form?!
         {
             e.preventDefault();
-            deleteTodo(todos, todo);
-            addTodo(todos, titleInput.value, dueDateInput.value, descriptionInput.value, priorityInput.value);
-            // ---------------
-            if (ProjectFactory.currentProject.name != "All")
-            {
-                deleteTodo(ProjectFactory.projects.find(x => x.name == "All").todos, todo);
-                addTodo(ProjectFactory.projects.find(x => x.name == "All").todos, titleInput.value, dueDateInput.value, descriptionInput.value, priorityInput.value);
-            }
-            else
-            {
-                ProjectFactory.projects.forEach(project => {
-                    let obj = project.todos.find(x => x.title == todo.title && x.description == todo.description);
-                    if (obj !== undefined)
-                    {
-                        deleteTodo(project.todos, todo);
-                        addTodo(project.todos, titleInput.value, dueDateInput.value, descriptionInput.value, priorityInput.value);
-                    }
-                })
-            }
-            // -------------- fix in this scope            
-            DisplayTodos(project);
+            todo.editTodo(titleInput.value, dueDateInput.value, descriptionInput.value, priorityInput.value);               
+            DisplayTodos();
         };
         
         // On discard, remove the parallel Task
@@ -149,37 +130,36 @@ let ProjectPageBuilder = (function(){
         return task;
     }
     
-    let CompletedDisplayHelper = (todo, todos, completed_todos) =>
+    let CompletedDisplayHelper = (todo) =>
         {
-            // Create a function that handles checking out the task.
-            var HandleUnCheckTask = () =>
-            {
-                ProjectFactory.uncheckTodo(todo);
-                document.getElementById("container").innerHTML = "";
-                DisplayTodos(project);
-            };
-            var HandleDeleteTask = (e) =>
-                {
-                    ProjectFactory.deleteTodo(todo);
-                    DisplayTodos(todos, completed_todos);
-                };
-            let li = document.createElement("li");
-            let task = DivBuilder("class", "todo");
-            // because the nav houses the title, due date, the edit and delete buttons, it requires
-            // a helper function.
-            let nav = DivBuilder("class", "displayNav");
-            let taskTitle = TextBuilder("h1", todo.title, "taskTitle");
-            let taskDueDate = TextBuilder("h4", todo.dueDate, "taskTDueDate");
-            let deleteButton = ButtonBuilder("Delete Task", "deleteButton", HandleDeleteTask);
-            let taskDescription = TextBuilder("p", todo.description, "taskDescription");
-            let taskFooter = DivBuilder("taskFooter");
-            let taskPriority = TextBuilder("h6", todo.priority, "taskPriority");
-            let unCheckButton = ButtonBuilder("Uncheck Task", "checkButton", HandleUnCheckTask);
-            nav.append(taskTitle, taskDueDate, deleteButton);
-            taskFooter.append(taskPriority, unCheckButton);
-            task.append(nav, taskDescription, taskFooter);
-            li.appendChild(task);
-            return li;
+        // Create a function that handles checking out the task.
+        var HandleUnCheckTask = () =>
+        {
+            ProjectFactory.uncheckTodo(todo);
+            DisplayTodos();
+        };
+        var HandleDeleteTask = (e) =>
+        {
+            ProjectFactory.deleteTodo(todo);
+            DisplayTodos();
+        };
+        let li = document.createElement("li");
+        let task = DivBuilder("class", "todo");
+        // because the nav houses the title, due date, the edit and delete buttons, it requires
+        // a helper function.
+        let nav = DivBuilder("class", "displayNav");
+        let taskTitle = TextBuilder("h1", todo.title, "taskTitle");
+        let taskDueDate = TextBuilder("h4", todo.dueDate, "taskTDueDate");
+        let deleteButton = ButtonBuilder("Delete Task", "deleteButton", HandleDeleteTask);
+        let taskDescription = TextBuilder("p", todo.description, "taskDescription");
+        let taskFooter = DivBuilder("taskFooter");
+        let taskPriority = TextBuilder("h6", todo.priority, "taskPriority");
+        let unCheckButton = ButtonBuilder("Uncheck Task", "checkButton", HandleUnCheckTask);
+        nav.append(taskTitle, taskDueDate, deleteButton);
+        taskFooter.append(taskPriority, unCheckButton);
+        task.append(nav, taskDescription, taskFooter);
+        li.appendChild(task);
+        return li;
         };
 
 
@@ -222,13 +202,8 @@ let ProjectPageBuilder = (function(){
                 let description = document.getElementById("description").value;
                 let dueDate = document.getElementById("dueDate").value;
                 let priority = document.getElementById("priority").value;
-                addTodo(ProjectFactory.currentProject.todos, title, description, dueDate, priority);
-                if (ProjectFactory.currentProject.name != "All")
-                {
-                    addTodo(ProjectFactory.projects.find(x => x.name == "All").todos, title, dueDate, description, priority);
-                }
-                document.getElementById("container").innerHTML = "";
-                DisplayTodos(ProjectFactory.currentProject);
+                addTodo(title, dueDate, description, priority, ProjectFactory.currentProject.name);
+                DisplayTodos();
             }
 
             // Prevent adding multiple event listeners for 'submit' on the modalForm
@@ -243,7 +218,7 @@ let ProjectPageBuilder = (function(){
             {
                 ProjectFactory.currentProject = newProject;
                 console.log(ProjectFactory.currentProject);
-                ProjectPageBuilder.DisplayTodos(ProjectFactory.currentProject.todos, ProjectFactory.currentProject.completed_todos);
+                ProjectPageBuilder.DisplayTodos();
             };
         // separate the creation of an li with an event listener into its own function
         function handleSubmit(e) {
@@ -256,7 +231,7 @@ let ProjectPageBuilder = (function(){
             projectli.removeEventListener("click", () => onLiClick(newProject));
             projectli.addEventListener("click", () => onLiClick(newProject));
             document.getElementById("projects").append(projectli);
-            ProjectPageBuilder.DisplayTodos(ProjectFactory.currentProject.todos, ProjectFactory.currentProject.completed_todos);
+            ProjectPageBuilder.DisplayTodos();
         }
         let projectForm = document.getElementById("projectForm");
         projectForm.removeEventListener("submit", handleSubmit);
