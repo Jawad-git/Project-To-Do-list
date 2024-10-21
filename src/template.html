@@ -22,7 +22,12 @@
                 <label for="dueDate">Due date:</label>
                 <input type="text" id="dueDate" name="dueDate" required>
                 <label for="priority">Priority:</label>
-                <input type="text" id="priority" name="priority" required>
+                <select id="priority" name="priority" required>
+                    <option value="3">Low</option>
+                    <option value="2">Medium</option>
+                    <option value="1">High</option>
+                    <option value="0">Critical</option>
+                </select>
                 <button type="submit" id="addTaskSubmit">Add Task</button>
             </form>
         </div>

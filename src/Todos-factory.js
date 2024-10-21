@@ -2,6 +2,8 @@ let TodosFactory = (function() {
     let Id = 1;
     // Create an object constructor function that makes a Todo after
     // being given the title, description, due date, and priority.
+    let storage = window.localStorage;
+
     let CreateTodo = function(title, dueDate, description, priority, project = "All")
     {
         this.Id = Id++;
@@ -13,14 +15,20 @@ let TodosFactory = (function() {
         this.checked = false;
     };
 
+    CreateTodo.prototype.saveToStorage = function (){
+        storage.setItem(`todo-${this.id}`, JSON.stringify(this));
+    }
+
     CreateTodo.prototype.check = function()
     {
-        this.checked = true;        
+        this.checked = true;  
+        this.saveToStorage();
     }
 
     CreateTodo.prototype.uncheck = function()
     {
-        this.checked = false;        
+        this.checked = false;  
+        this.saveToStorage();
     }
 
     CreateTodo.prototype.editTodo = function(title, dueDate, description, priority)
@@ -28,16 +36,14 @@ let TodosFactory = (function() {
         this.title = title;
         this.dueDate = dueDate;
         this.description = description;
-        this.priority = priority;      
+        this.priority = priority;
+        this.saveToStorage();
     }
 
-    /*let editTodo = (todo, title, dueDate, description, priority) =>
+    CreateTodo.prototype.delete = function ()
     {
-        todo.title = title;
-        todo.dueDate = dueDate;
-        todo.description = description;
-        todo.priority = priority;
-    }*/
+        storage.removeItem(`todo-${this.id}`);
+    }
 
     
     return {CreateTodo}

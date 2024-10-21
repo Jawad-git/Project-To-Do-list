@@ -43,6 +43,6 @@ TodoApplication.initialize();
 
 
 
-function findProj(e){
-    return projects.find(x => x.name == e.target.innerText);
-}
+//function findProj(e){
+//    return projects.find(x => x.name == e.target.innerText);
+//}

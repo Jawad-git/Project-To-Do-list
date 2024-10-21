@@ -83,6 +83,7 @@ let ProjectFactory = (function (){
                 removeFromList(All.todoList, todo);
             }
         }
+        todo.delete();
     }
 
     /*

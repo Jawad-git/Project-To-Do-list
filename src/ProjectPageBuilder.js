@@ -3,7 +3,8 @@ import TodosFactory from './Todos-factory.js';
 import ProjectFactory from './ProjectFactory.js';
 // maybe remove the project and use currentproject to display dom
 let ProjectPageBuilder = (function(){
-
+    
+    const importanceLevels = ["Critical", "High", "Medium", "Low"];
     let DivBuilder = commonBuilders.DivBuilder;
     let TextBuilder = commonBuilders.TextBuilder;
     let ButtonBuilder = commonBuilders.ButtonBuilder;
@@ -50,13 +51,13 @@ let ProjectPageBuilder = (function(){
         };
         let li = document.createElement("li");
         let task = DivBuilder("class", "todo");
-
+        task.classList.add(`${importanceLevels[todo.priority]}`);
         // because the nav houses the title, due date, the edit and delete buttons, it requires
         // a helper function.
         let nav = TodoNavHelper(todo);
         let taskDescription = TextBuilder("p", todo.description, "taskDescription");
-        let taskFooter = DivBuilder("taskFooter");
-        let taskPriority = TextBuilder("h6", todo.priority, "taskPriority");
+        let taskFooter = DivBuilder("class", "taskFooter");
+        let taskPriority = TextBuilder("h6", importanceLevels[todo.priority], "taskPriority");
         let completeButton = ButtonBuilder("Check Task", "checkButton", HandleCheckTask);
         taskFooter.append(taskPriority, completeButton);
         task.append(nav, taskDescription, taskFooter);
@@ -81,11 +82,14 @@ let ProjectPageBuilder = (function(){
         };
         let nav = DivBuilder("class", "displayNav");
         let taskTitle = TextBuilder("h1", todo.title, "taskTitle");
-        let taskDueDate = TextBuilder("h4", todo.dueDate, "taskTDueDate");
+        let taskDueDate = TextBuilder("h4", todo.dueDate, "taskDueDate");
         let editButton = ButtonBuilder("Edit Task", "editButton", HandleEditTask);
         let deleteButton = ButtonBuilder("Delete Task", "deleteButton", HandleDeleteTask);
-        
-        nav.append(taskTitle, taskDueDate, editButton, deleteButton);
+        let titleAndDateWrapper = DivBuilder("class", "titleAndDateWrapper");
+        let buttonWrapper = DivBuilder("class", "buttonWrapper");
+        titleAndDateWrapper.append(taskTitle, taskDueDate);
+        buttonWrapper.append(editButton, deleteButton);
+        nav.append(titleAndDateWrapper, buttonWrapper);
         return nav;
     }
 
@@ -104,7 +108,17 @@ let ProjectPageBuilder = (function(){
         let titleInput = InputBuilder("input", "titleInput", "New Title..");
         let dueDateInput = InputBuilder("input", "dueDateInput", "New Due date in the format YYYY-MM-DD.."); // should be date here
         let descriptionInput = InputBuilder("input", "descriptionInput", "New Description..");
-        let priorityInput = InputBuilder("input", "priorityInput", "New priority, the smaller the number the higher the priority..");
+        let priorityInput = document.createElement("select");
+        priorityInput.setAttribute("class", "priorityInput");
+        let valueCounter = 3;
+        importanceLevels.forEach(level => {
+            let option = document.createElement("option");
+            option.value = valueCounter; // set the value of the option
+            option.textContent = importanceLevels[valueCounter];  // set the displayed text
+            priorityInput.appendChild(option);  // append option to select
+            valueCounter--;      
+        });
+
     
         let taskFooter = DivBuilder("class", "taskFooterInput");
         
@@ -153,7 +167,9 @@ let ProjectPageBuilder = (function(){
         let deleteButton = ButtonBuilder("Delete Task", "deleteButton", HandleDeleteTask);
         let taskDescription = TextBuilder("p", todo.description, "taskDescription");
         let taskFooter = DivBuilder("taskFooter");
-        let taskPriority = TextBuilder("h6", todo.priority, "taskPriority");
+        let taskPriority = TextBuilder("h6", importanceLevels[todo.priority], "taskPriority");
+        task.classList.add(`${importanceLevels[todo.priority]}`);
+        
         let unCheckButton = ButtonBuilder("Uncheck Task", "checkButton", HandleUnCheckTask);
         nav.append(taskTitle, taskDueDate, deleteButton);
         taskFooter.append(taskPriority, unCheckButton);
@@ -202,7 +218,7 @@ let ProjectPageBuilder = (function(){
                 let description = document.getElementById("description").value;
                 let dueDate = document.getElementById("dueDate").value;
                 let priority = document.getElementById("priority").value;
-                addTodo(title, dueDate, description, priority, ProjectFactory.currentProject.name);
+                addTodo(title + ", ", dueDate, description, priority, ProjectFactory.currentProject.name);
                 DisplayTodos();
             }
 
