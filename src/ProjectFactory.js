@@ -4,25 +4,64 @@ let ProjectFactory = (function (){
     let CreateTodo = TodosFactory.CreateTodo;
     // Create an object constructor function that makes a Project after
     // being given its name, Each project has an array of todos and an array of completed todos.
+    const projects = [];
+    let storage = window.localStorage;
+    // we comment the json parse because we always want to empty the projectNames, 
+    // as we add them again during the load, this is to avoid exponential duplication!
+    let projectNames = /*JSON.parse(storage.getItem("projects"))|| */ [];
     function ProjectBuild(name)
     {
         this.name = name;
         this.todoList = [];
         this.completedList = [];
     }
-    const projects = [];
+
+    function saveProjects(){
+        storage.setItem(`projects`, JSON.stringify(projectNames));
+    }
     let All = new ProjectBuild("All");
     let currentProject = All;
     projects.push(All);
 
+    // create a project:
+
+    function createProject(name)
+    {
+        let newProject = new ProjectBuild(name);
+        currentProject = newProject;
+        projects.push(newProject);
+        projectNames.push(newProject.name);
+        saveProjects();
+        return newProject;
+    }
+
+    function addTodoToProject (todo)
+    {
+        let projectObject = projects.find(x => x.name == `${todo.project}`);
+        if (todo.checked == true)
+        {
+            addToList(projectObject.completedList, todo);
+        }
+        else
+        {
+            addToList(projectObject.todoList, todo);
+        }
+        if (todo.project != "All") {
+            if (todo.checked == true)
+            {
+                addToList(All.completedList, todo);           
+            }
+            else
+            {
+                addToList(All.todoList, todo);           
+            }
+        }
+    }
+
     // Take the input from the user, create a Todo with them, and run addToList.
     function addTodo(title, dueDate, description, priority, project = currentProject.name) {
-        let projectObject = projects.find(x => x.name == `${project}`);
         let todo = new CreateTodo(title, dueDate, description, priority, project);
-        addToList(projectObject.todoList, todo);
-        if (project != "All") {
-            addToList(All.todoList, todo);           
-        }
+        addTodoToProject(todo);
     }
 
     // Add the task to its respective position in the arrays depending on its priority.
@@ -174,7 +213,8 @@ let ProjectFactory = (function (){
     }
         */
 
-    return {ProjectBuild, addTodo, deleteTodo, currentProject, projects, All, sendTodoFromListToAnother, checkToDo, uncheckTodo};
+    return {ProjectBuild, createProject, addTodo, deleteTodo, currentProject, projects,
+         All, sendTodoFromListToAnother, checkToDo, uncheckTodo, addTodoToProject};
 })();
 
 export default ProjectFactory;

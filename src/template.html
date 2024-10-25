@@ -12,36 +12,44 @@
 <div id="content">
     <div id="modal">
         <div class="modal-content">
-            <span class="closeBtn">wfefwe&times;</span>
+            <span class="closeBtn">&times;</span>
             <h2>Task</h2>
             <form id="modalForm">
-                <label for="title">Title:</label>
-                <input type="text" id="title" name="title" required placeholder="title..">
-                <label for="description">Description:</label>
-                <input type="text" id="description" name="description" required>
-                <label for="dueDate">Due date:</label>
-                <input type="text" id="dueDate" name="dueDate" required>
-                <label for="priority">Priority:</label>
-                <select id="priority" name="priority" required>
-                    <option value="3">Low</option>
-                    <option value="2">Medium</option>
-                    <option value="1">High</option>
-                    <option value="0">Critical</option>
-                </select>
-                <button type="submit" id="addTaskSubmit">Add Task</button>
+                <div class="field1">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title" required placeholder="title..">
+                </div>
+                <div class="field2">
+                    <label for="dueDate">Due date:</label>
+                    <input type="date" id="dueDate" name="dueDate" required>
+                </div>
+                <div class="field3">
+                    <label for="priority">Priority:</label>
+                    <select id="priority" name="priority" required>
+                        <option value="3">Low</option>
+                        <option value="2">Medium</option>
+                        <option value="1">High</option>
+                        <option value="0">Critical</option>
+                    </select>
+                </div>
+                <div class="field4">
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description"></textarea>
+                </div>
+                <button type="submit" class="btn confirm" id="addTaskSubmit">Add Task</button>
             </form>
         </div>
     </div>
     <div class="sidebar">
-        <button id="addTask"> Add new task</button>
+        <button id="addTask" class="btn confirm"> Add new task</button>
         <ul id="projects">
             <li id="All">All</li>
         </ul>
         <form id="projectForm">
-            <input type="text" id="newProjectName">
-            <button type="submit">Add</button>
+            <input type="text" id="newProjectName" placeholder="New Project Name...">
+            <button type="submit" class="btn confirm">Add Project</button>
         </form>
-        </div>
+    </div>
     <div id ="container">
     </div>
 </div>

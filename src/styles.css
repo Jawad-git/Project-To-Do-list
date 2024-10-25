@@ -38,6 +38,7 @@ ul
 }
 
 #modal {
+    box-sizing: border-box;
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
@@ -52,33 +53,174 @@ ul
 /* Modal Content */
 .modal-content {
     background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
+    margin: 10% auto; /* 15% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
-    max-width: 400px;
+    max-width: 600px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     border-radius: 8px;
 }
 
+#modalForm
+{
+    display: grid;
+    grid-template-columns: 40% 30% 30%;
+    row-gap: 1em;
+}
+
+.field3
+{
+    display: flex;
+    flex-direction: column;
+    justify-self: left;
+    align-self: center;
+}
+.field3 select
+{
+    width: 100px
+}
+
+textarea
+{
+    width: 520px;
+    height: 100px;
+    resize: none;
+}
+.field4
+{
+    display: flex;
+    flex-direction: column;
+    grid-row: 2/3;
+    grid-column: 1/4;
+}
+
+#modalForm button
+{
+    grid-area: 3/1/4/4;
+}
+#projects
+{
+    display: flex;
+    flex-direction: column;
+    margin-right: 1em;
+    gap: 0.2em
+}
+#projects li
+{
+    border-radius: 6px;
+    padding: 0.5em 0.3em;
+    border: 1px black solid;
+    cursor: pointer;
+    transition: transform 0.3s ease-in 0s,
+                background-color 0.3s ease-in 0s;
+}
+
+#projects li:hover
+{
+    background-color: #CCC;
+}
+#projects li:active
+{
+
+    background-color: #AAA;
+    transform: scale(1.05);
+}
 li
 {
     display: flex;
     flex-direction: row;
     align-items: center;
+    height: max-content;
 }
+
+.lists ul li 
+{
+    height: max-content;
+}
+
+#projectForm
+{
+    margin-right: 1em;
+}
+#projectForm input
+{
+    border-radius: 6px;
+    font-size: large;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+#projectForm button
+{
+    margin-top: 0.4em;
+    width: 100%;
+}
+input
+{
+    font-size: 1em;
+    padding: 0.4em 0.3em;
+}
+
 
 .todo
 {
     margin: 2em;
     border: black 1px solid;
-    width: 35%;
+    width: 42%;
     border-radius: 16px;
-    padding: 1em;
+    padding: 0.8em;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
+    min-height: 220px;
+    height: 250px;
 }
 
+.todoInput
+{
+    margin: 2em;
+    border-color: black;
+    border-width: 2px 2px 2px 10px;
+    border-style: solid;
+    width: 42%;
+    border-radius: 16px;
+    padding: 1em;
+    box-sizing: border-box;
+    min-height: 220px;
+    height: 250px;
+}
+
+#editTaskForm
+{
+    flex-direction: column;
+    display: flex;
+    row-gap: 0.8em;
+
+}
+.descriptionInput
+{
+    width: 470px;
+    padding: 0.4em 0.5em;
+    font-size: 1.5em;
+    height: 60px;
+}
+
+.priorityInput
+{
+    margin-right: 190px;
+}
+.taskFooterInput
+{
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.3em;
+}
+.taskFooterInput button
+{
+    min-width: 120px;
+    height: 40px;
+}
 .Low
 {
     border-width: 2px 2px 2px 10px;
@@ -86,18 +228,18 @@ li
 }
 .Medium
 {
-    border-left: 3px yellow solid;
-
+    border-width: 2px 2px 2px 10px;
+    border-color: yellow;
 }
 .High
 {
-    border-left: 3px orange solid;
-
+    border-width: 2px 2px 2px 10px;
+    border-color: orange;
 }
 .Critical
 {
-    border-left: 6px red solid;
-
+    border-width: 2px 2px 2px 10px;
+    border-color: red;
 }
 
 .displayNav
@@ -107,6 +249,25 @@ li
     align-items: center;
 }
 
+p {
+    box-sizing: border-box;
+    padding: 3px;
+    margin: 0;
+    height: 60px;
+    word-wrap: break-word; /* Break long words to prevent overflow */
+    overflow-wrap: break-word; /* Similar property for better compatibility */
+    overflow: auto;
+    max-height: 4em;
+    max-width: 450px; /* Height for one line, adjust as needed */
+    transition: max-height 0.3s ease; /* Smooth transition when expanding */
+    border: black solid 1px;
+}
+
+
+
+p.expanded {
+    max-height: none; /* Remove height restriction to show all text */
+}
 .titleAndDateWrapper
 {
     display: flex;
@@ -135,5 +296,66 @@ button
 {
     font-size: 14px;
     padding: 6px;
-    height: 32px;
+    height: 40px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease; /* Smooth transitions */
+  }
+  
+  /* Confirm Button */
+  .btn.confirm {
+    background-color: #4CAF50; /* Green */
+  }
+  
+  .btn.confirm:hover {
+    background-color: #45a049; /* Darker green on hover */
+  }
+  
+  .btn.confirm:active {
+    transform: scale(0.95); /* Slightly shrink on click */
+  }
+  
+  /* Edit Button */
+  .btn.edit {
+    background-color: #FFA500; /* Yellow/Orange */
+  }
+  
+  .btn.edit:hover {
+    background-color: #e59400; /* Darker orange on hover */
+  }
+  
+  .btn.edit:active {
+    transform: scale(0.95);
+  }
+  
+  /* Delete Button */
+  .btn.delete {
+    background-color: #f44336; /* Red */
+  }
+  
+  .btn.delete:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+  }
+  
+  .btn.delete:active {
+    transform: scale(0.95);
+  }
+
+.completedTasksHeader
+{
+    align-self: center;
+}
+
+.lists
+{
+    display: flex;
+    flex-direction: column;
+    
 }
